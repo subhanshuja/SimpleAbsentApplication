@@ -2,7 +2,7 @@ package id.absent.app.view;
 
 import id.absent.app.common.AbsentService;
 import id.absent.app.common.ConfigDatabase;
-import id.absent.app.model.AbsentIn;
+import id.absent.app.model.Absent;
 import id.absent.app.model.User;
 
 import javax.swing.*;
@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Date;
 
 public class AbsentFrame extends JFrame implements AbsentService {
 
@@ -82,16 +81,16 @@ public class AbsentFrame extends JFrame implements AbsentService {
                     user.setName(name);
                     user.setNim(nim);
 
-                    AbsentIn absentIn = new AbsentIn(user);
-                    absentIn.setStartDate();
+                    Absent absent = new Absent(user);
+                    absent.setStartDate();
 
                     try {
-                        insertAbsent(absentIn);
+                        insertAbsent(absent);
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
 
-                    jlStatusAbsent.setText("woke "+user.getName()+" "+user.getNim()+" "+absentIn.getStartDate());
+                    jlStatusAbsent.setText("woke "+user.getName()+" "+user.getNim()+" "+absent.getStartDate());
                 } else {
                     jlStatusAbsent.setText("empty");
                 }
@@ -100,14 +99,29 @@ public class AbsentFrame extends JFrame implements AbsentService {
     }
 
     @Override
-    public void insertAbsent(AbsentIn absentIn) throws Exception {
-        String qAbsent = " insert into absentin (name, nim, absent)"+"values (?, ?, ?)";
+    public void insertAbsent(Absent absent) throws Exception {
+        String qAbsent = " insert into absent (name, nim, absentin, absentout)"+"values (?, ?, ?, ?)";
         Connection connection = new ConfigDatabase().getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(qAbsent);
-        preparedStatement.setString(1, absentIn.getUserByName());
-        preparedStatement.setString(2, absentIn.getUserByNim());
-        preparedStatement.setInt(3, (int) absentIn.getStartDate());
+        preparedStatement.setString(1, absent.getUserByName());
+        preparedStatement.setString(2, absent.getUserByNim());
+        preparedStatement.setInt(3, (int) absent.getStartDate());
+        preparedStatement.setInt(4, 0);
         preparedStatement.execute();
+
+        connection.close();
+    }
+
+    @Override
+    public void updateAbsent(Absent absent) throws Exception {
+        String query = "update absent set absentout = ? where name = ?";
+        Connection connection = new ConfigDatabase().getConnection();
+        PreparedStatement preparedStmt = connection.prepareStatement(query);
+        preparedStmt.setInt   (1, (int) absent.getEndDate());
+        preparedStmt.setString(2, absent.getUserByName());
+        preparedStmt.executeUpdate();
+
+        connection.close();
     }
 }

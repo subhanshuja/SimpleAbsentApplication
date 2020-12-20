@@ -1,6 +1,6 @@
 package id.absent.app.controller;
 
-import id.absent.app.model.AbsentIn;
+import id.absent.app.model.Absent;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -8,29 +8,29 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-public class ValidAbsentIn implements CheckAbsentIn, ConvertDate {
+public class ValidAbsent implements CheckAbsent, ConvertDate {
 
-    private List<AbsentIn> listAbsentIn;
+    private List<Absent> listAbsent;
     private long epochLateDay = 1608379662; // hard code is not good
 
-    public ValidAbsentIn(List<AbsentIn> absentIn) {
-        this.listAbsentIn = absentIn;
+    public ValidAbsent(List<Absent> absent) {
+        this.listAbsent = absent;
     }
 
-    private int checkIn(AbsentIn absentIn) {
-        if (epochLateDay < absentIn.getStartDate()) {
+    private int checkIn(Absent absent) {
+        if (epochLateDay < absent.getStartDate()) {
             return 1;
-        } else if (epochLateDay == absentIn.getStartDate()) {
+        } else if (epochLateDay == absent.getStartDate()) {
             return 2;
         }
         return 3;
     }
 
     @Override
-    public String checkAbsentIn(AbsentIn absentIn) {
-        if ( checkIn(absentIn) == 1) {
+    public String checkAbsent(Absent absent) {
+        if ( checkIn(absent) == 1) {
             return "on time";
-        } else if (checkIn(absentIn) == 2) {
+        } else if (checkIn(absent) == 2) {
             return "in time";
         }
         return "late";
@@ -47,8 +47,8 @@ public class ValidAbsentIn implements CheckAbsentIn, ConvertDate {
     }
 
     public void showAbsentIn() {
-        for (AbsentIn absentIn : listAbsentIn) {
-            System.out.println(checkAbsentIn(absentIn) + " name " + absentIn.getUserByName() + " time " + epochToDate(absentIn.getStartDate()));
+        for (Absent absent : listAbsent) {
+            System.out.println(checkAbsent(absent) + " name " + absent.getUserByName() + " time " + epochToDate(absent.getStartDate()));
         }
     }
 }
