@@ -5,16 +5,15 @@ import id.absent.app.model.Absent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 public class ValidAbsent implements CheckAbsent, ConvertDate {
 
-    private List<Absent> listAbsent;
+    private Absent absent;
     private long epochLateDay = 1608379662; // hard code is not good
 
-    public ValidAbsent(List<Absent> absent) {
-        this.listAbsent = absent;
+    public ValidAbsent(Absent absent) {
+        this.absent = absent;
     }
 
     private int checkIn(Absent absent) {
@@ -46,9 +45,14 @@ public class ValidAbsent implements CheckAbsent, ConvertDate {
         return formatted;
     }
 
-    public void showAbsentIn() {
-        for (Absent absent : listAbsent) {
-            System.out.println(checkAbsent(absent) + " name " + absent.getUserByName() + " time " + epochToDate(absent.getStartDate()));
-        }
+    public String showAbsent() {
+        return checkAbsent(absent) + " name " + absent.getUserByName() +
+                " start time " + epochToDate(absent.getStartDate());
     }
+
+    public String showLeft() {
+        return checkAbsent(absent) + " name " + absent.getUserByName() +
+                " start absent " + epochToDate(absent.getStartDate())+
+                " end absent " + epochToDate(absent.getEndDate());
+        }
 }

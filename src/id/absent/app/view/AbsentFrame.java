@@ -2,6 +2,7 @@ package id.absent.app.view;
 
 import id.absent.app.common.AbsentService;
 import id.absent.app.common.ConfigDatabase;
+import id.absent.app.controller.ValidAbsent;
 import id.absent.app.model.Absent;
 import id.absent.app.model.User;
 
@@ -17,17 +18,23 @@ public class AbsentFrame extends JFrame implements AbsentService {
     private JLabel jlName = new JLabel("Enter Your Name");
     private JLabel jlNim = new JLabel("Enter Your Nim");
     private JTextField jtfName = new JTextField(30);
-    private JTextField jtfNim = new JTextField(10);;
+    private JTextField jtfNim = new JTextField(10);
     private JButton jbAbsent = new JButton("Absent");
+    private JButton jbLeft = new JButton("Left");
 
     private JLabel jlStatusAbsent = new JLabel("");
 
     private String name, nim;
 
+    User user;
+    Absent absent;
+    ValidAbsent validAbsent;
+
     public AbsentFrame() {
         super("Simple Absent Application");
         initView();
         doAbsent();
+        doLeft();
     }
 
     private void initView() {
@@ -51,14 +58,20 @@ public class AbsentFrame extends JFrame implements AbsentService {
         base.add(jtfNim, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 2;
+        constraints.gridy = 3;
         base.add(jlStatusAbsent, constraints);
 
-        constraints.gridx = 0;
+        constraints.gridx = 1;
+        constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        constraints.anchor = GridBagConstraints.CENTER;
+        base.add(jbAbsent, constraints);
+
+        constraints.gridx = 2;
         constraints.gridy = 3;
         constraints.gridwidth = 3;
         constraints.anchor = GridBagConstraints.CENTER;
-        base.add(jbAbsent, constraints);
+        base.add(jbLeft, constraints);
 
         base.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Absent Panel"));
@@ -77,12 +90,14 @@ public class AbsentFrame extends JFrame implements AbsentService {
                 nim = jtfNim.getText().toString();
 
                 if (!name.equals("") && !nim.equals(""))  {
-                    User user = new User();
+                    user = new User();
                     user.setName(name);
                     user.setNim(nim);
 
-                    Absent absent = new Absent(user);
+                    absent = new Absent(user);
                     absent.setStartDate();
+
+                    validAbsent = new ValidAbsent(absent);
 
                     try {
                         insertAbsent(absent);
@@ -90,7 +105,47 @@ public class AbsentFrame extends JFrame implements AbsentService {
                         exception.printStackTrace();
                     }
 
-                    jlStatusAbsent.setText("woke "+user.getName()+" "+user.getNim()+" "+absent.getStartDate());
+                    jlStatusAbsent.setText("status:"+validAbsent.showAbsent()+
+                            "name: "+user.getName()+
+                            "nim: "+user.getNim()+
+                            "start class "+absent.getStartDate()+
+                            "end class"+absent.getEndDate());
+                } else {
+                    jlStatusAbsent.setText("empty");
+                }
+            }
+        });
+    }
+
+    private void doLeft() {
+        jbLeft.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                name = jtfName.getText().toString();
+                nim = jtfNim.getText().toString();
+
+                if (!name.equals("") && !nim.equals(""))  {
+                    user = new User();
+                    user.setName(name);
+                    user.setNim(nim);
+
+                    absent = new Absent(user);
+                    absent.setEndDate();
+
+                    validAbsent = new ValidAbsent(absent);
+
+                    try {
+                        updateAbsent(absent);
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+
+                    jlStatusAbsent.setText("status:"+validAbsent.showAbsent()+
+                            "name: "+user.getName()+
+                            "nim: "+user.getNim()+
+                            "start class "+absent.getStartDate()+
+                            "end class"+absent.getEndDate());
+
                 } else {
                     jlStatusAbsent.setText("empty");
                 }
